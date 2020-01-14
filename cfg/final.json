@@ -1,0 +1,6 @@
+{
+  "SRCX": "datasets/Final/trainX.npy",
+  "SRCY": "datasets/Final/trainY.npy",
+  "TGTX": "datasets/Final/testX.npy",
+  "TGTY": "datasets/Final/testY.npy"
+}
