@@ -26,7 +26,8 @@ def main():
         model = dSNE(args)
     else:
         raise NotImplementedError
-
+    
+    print('hey finish creating model!!!!')
     if args.training:
         model.train()
     else:

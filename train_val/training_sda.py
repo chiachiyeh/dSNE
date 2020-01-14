@@ -33,24 +33,31 @@ class DomainModel(object):
         Initialize the model
         :param args: user arguments from parser
         """
+        print('hey into DomainModel !!!')
         self.args = args
         # logger
         self.logger, self.sw = self.create_logger()
+        print('hey finish creating_logger')
         self.log_src, self.log_tgt = False, False
         self.label_dict = None
         # train loader
         self.train_src_loader, self.train_tgt_loader, self.test_src_loader, self.test_tgt_loader = (None,) * 4
         self.create_loader()
+        print('hey finish creat_loader()')
         # metrics
         self.metrics = self.create_metrics()
+        print('hey finish create_metrics()')
         # learning rate
         self.lr_schlr = None
         self.create_lr_scheduler()
+        print('hey fiinish create_lr_scheduler()')
         # records
         self.records = None
         self.reset_record()
+        print('hey finish reset_record()')
         self.cur_epoch = 0
         self.cur_iter = 0
+        print('hey finish into DomainModel')
 
     def create_logger(self):
         """
@@ -61,7 +68,6 @@ class DomainModel(object):
             logger = Logger(self.args.log, '%s-%s' % (self.args.method, self.args.postfix),
                             rm_exist=self.args.start_epoch == 0)
             logger.update_dict(vars(self.args))
-
             if self.args.mxboard:
                 from mxboard import SummaryWriter
                 sw = SummaryWriter(logdir=self.args.log)
@@ -74,7 +80,8 @@ class DomainModel(object):
 
     def create_transformer(self):
         train_tforms, eval_tforms = [transforms.Resize(self.args.resize)], [transforms.Resize(self.args.resize)]
-
+        
+        """
         if self.args.random_crop:
             train_tforms.append(transforms.RandomResizedCrop(self.args.size, scale=(0.8, 1.2)))
         else:
@@ -88,7 +95,7 @@ class DomainModel(object):
         if self.args.random_color:
             train_tforms.append(transforms.RandomColorJitter(self.args.color_jitter, self.args.color_jitter,
                                                              self.args.color_jitter, 0.1))
-
+        """
         train_tforms.extend([transforms.ToTensor(), transforms.Normalize(self.args.mean, self.args.std)])
         eval_tforms.extend([transforms.ToTensor(), transforms.Normalize(self.args.mean, self.args.std)])
 
@@ -102,6 +109,7 @@ class DomainModel(object):
         Create data loader
         :return: data loaders
         """
+        print('hey into create_loader')
         cpus = cpu_count()
         train_tforms, eval_tforms = self.create_transformer()
 
@@ -115,11 +123,13 @@ class DomainModel(object):
             trs_set, trt_set, tes_set, tet_set = self.create_final_dataset(train_tforms, eval_tforms)
         else:
             raise NotImplementedError
+        print('hey finish create_final_dataset')
 
         self.train_src_loader = DataLoader(trs_set, self.args.bs, shuffle=True, num_workers=cpus)
         self.train_tgt_loader = DataLoader(trt_set, self.args.bs, shuffle=True, num_workers=cpus)
         self.test_src_loader = DataLoader(tes_set, self.args.bs, shuffle=False, num_workers=cpus)
         self.test_tgt_loader = DataLoader(tet_set, self.args.bs, shuffle=False, num_workers=cpus)
+        print('hey finish DataLoader and Create_loader')
 
     def load_digits_cfg(self):
         cfg = load_json(self.args.cfg)
@@ -245,6 +255,7 @@ class DomainModel(object):
             tes_set: testing source set
             tet_set: testing target set
         """
+        print('hey into create_final_dataset')
         # Read config
         Sx, Sy, Tx, Ty = self.load_final_cfg()
 
@@ -256,6 +267,7 @@ class DomainModel(object):
         tes_set = DomainNumpyDataset(Sx, Sy=Sy, tforms=eval_tforms)
         tet_set = DomainNumpyDataset(Tx, tforms=eval_tforms)
 
+        print('finish create_final_dataset')
         return trs_set, trt_set, tes_set, tet_set
 
 
@@ -687,6 +699,7 @@ class ClsModel(DomainModel):
 
 class AuxModel(DomainModel):
     def __init__(self, args):
+        print('hey into AuxModel initialization')
         super(AuxModel, self).__init__(args)
 
     def create_loader(self):
@@ -694,6 +707,7 @@ class AuxModel(DomainModel):
         Overwrite the data loader function
         :return: pairwised data loader, None, eval source loader, test target loader
         """
+        print('hey into create_loader')
         cpus = cpu_count()
 
         train_tforms, eval_tforms = [transforms.Resize(self.args.resize)], [transforms.Resize(self.args.resize)]
@@ -718,6 +732,7 @@ class AuxModel(DomainModel):
         train_tforms = transforms.Compose(train_tforms)
         eval_tforms = transforms.Compose(eval_tforms)
 
+        print('hey finish sth in create_loader')
         if 'digits' in self.args.cfg:
             trs_set, tes_set, tet_set = self.create_digits_datasets(train_tforms, eval_tforms)
         elif 'office' in self.args.cfg:
@@ -728,10 +743,12 @@ class AuxModel(DomainModel):
             trs_set, tes_set, tet_set = self.create_final_dataset(train_tforms, eval_tforms)
         else:
             raise NotImplementedError
+        print('hey finish create_final_dataset')
 
         self.train_src_loader = DataLoader(trs_set, self.args.bs, shuffle=True, num_workers=cpus)
         self.test_src_loader = DataLoader(tes_set, self.args.bs, shuffle=False, num_workers=cpus)
         self.test_tgt_loader = DataLoader(tet_set, self.args.bs, shuffle=False, num_workers=cpus)
+        print('hey finish DataLoader')
 
     def create_digits_datasets(self, train_tforms, eval_tforms):
         """
@@ -811,6 +828,7 @@ class AuxModel(DomainModel):
         return trs_set, tes_set, tet_set
 
     def create_final_dataset(self, train_tforms, eval_tforms):
+        print('hey into create_final_dataset')
         cfg = load_json(self.args.cfg)
 
         Sx = cfg['SRCX']
@@ -822,6 +840,7 @@ class AuxModel(DomainModel):
         tes_set = DomainNumpyDataset(Sx, Sy=Sy, tforms=eval_tforms)
         tet_set = DomainNumpyDataset(Tx, tforms=eval_tforms)
 
+        print('hey finish creat_final_dataset')
         return trs_set, tes_set, tet_set
 
     def train(self):
@@ -829,10 +848,13 @@ class AuxModel(DomainModel):
         Training process for Auxiliary model
         :return: None
         """
+        print('hey into AuxModel train')
         # create inference
         inference = self.create_inference()
+        print('hey finish self.create_inference()')
         # create trainer
         trainer = self.create_trainer(inference)
+        print('hey finish self.create_trainer()')
 
         for cur_epoch in range(self.args.start_epoch + 1, self.args.end_epoch + 1):
             self.cur_epoch = cur_epoch
@@ -1020,6 +1042,7 @@ class CCSA(AuxModel):
 
 class dSNE(AuxModel):
     def __init__(self, args):
+        print('hey into dSNE model initalization')
         super(dSNE, self).__init__(args)
 
     def train_epoch(self, inference, trainer, **kwargs):
@@ -1029,6 +1052,7 @@ class dSNE(AuxModel):
         :param trainer: trainer of inference
         :return:
         """
+        print('hey into dSNE train_epoch!!!!!!!')
 
         for Xs, Ys, Xt, Yt, _ in self.train_src_loader:
             Xs_lst = split_and_load(Xs, self.args.ctx, even_split=False)

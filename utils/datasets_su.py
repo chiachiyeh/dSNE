@@ -18,21 +18,35 @@ class DomainNumpyDataset(Dataset):
     """
     def __init__(self, Sx, Sy=None, Tx=None, Ty=None, tforms=None, ratio=0):
         # arr = trainX.npy / testY.npy
+        print('hey into DomainNumpyDataset')
         Tx_exist = True if Tx is not None else False
         Ty_exist = True if Ty is not None else False
         assert Tx_exist == Ty_exist
 
-        self.imgs = np.load(Sx) / 255.0
+        print('ready to img')
+        self.imgs = np.load(Sx)
         self.labs = ndarray.array(np.load(Sy)) if Sy is not None else None
-        self.imgs = ndarray.array([tforms(ndarray.array(img)) for img in self.imgs])
+        
+        arr = []
+        for id, img in enumerate(self.imgs):
+            print(id)
+            print('np shape', img.shape)
+            img = ndarray.array(img)
+            print('ori shape',img.shape)
+            img = tforms(img)
+            print('aft shape',img.shape)
+            arr.append(img)
+        self.imgs = ndarray.array(arr)
+        print('finish Source')
 
         if Tx is not None:
             arrX = np.load(Tx)
-            arrX = ndarray.array([tfroms(ndarray.array(img)) for img in arrX])
+            arrX = ndarray.array([tforms(ndarray.array(img)) for img in arrX])
             self.imgs = ndarray.concat((self.imgs, arrX), axis=0)
             arrY = ndarray.array(np.load(Ty))
             self.labs = ndarray.concat((self.labs, arrY), axis=0)
 
+        print('finish Tx')
 
         self.labExist = False if Y is None else True
         self.tforms = tforms
