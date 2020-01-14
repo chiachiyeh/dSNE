@@ -25,8 +25,10 @@ class DomainNumpyDataset(Dataset):
 
         print('ready to img')
         self.imgs = np.load(Sx)
+        #self.imgs.astype('float32')
         self.labs = ndarray.array(np.load(Sy)) if Sy is not None else None
         
+        """
         arr = []
         for id, img in enumerate(self.imgs):
             print(id)
@@ -38,29 +40,30 @@ class DomainNumpyDataset(Dataset):
             arr.append(img)
         self.imgs = ndarray.array(arr)
         print('finish Source')
-
+        
         if Tx is not None:
             arrX = np.load(Tx)
             arrX = ndarray.array([tforms(ndarray.array(img)) for img in arrX])
             self.imgs = ndarray.concat((self.imgs, arrX), axis=0)
             arrY = ndarray.array(np.load(Ty))
             self.labs = ndarray.concat((self.labs, arrY), axis=0)
-
+        """
         print('finish Tx')
 
-        self.labExist = False if Y is None else True
+        #self.labExist = False if Y is None else True
         self.tforms = tforms
         self.ratio = ratio
 
         print('in DomainNumpyDataset')
         print('imgs: ', self.imgs.shape)
-        print('labs: ', self.labs.shape)
+        #print('labs: ', self.labs.shape)
 
     def __getitem__(self,idx):
         im = self.imgs[idx]
-        l = self.labs[idx] if self.labExist else 0
-        #if self.tforms is not None:
-        #    im = self.tforms(im)
+        #l = self.labs[idx] if self.labExist else 0
+        l = self.labs[idx]
+        if self.tforms is not None:
+            im = self.tforms(im)
         return im, l
 
     def __len__(self):

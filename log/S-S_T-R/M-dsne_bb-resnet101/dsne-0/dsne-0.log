@@ -1,4 +1,4 @@
-2020-01-15 03:52:06,986:ckpt=ckpt/S-S_T-R/M-dsne_bb-resnet101/dsne-0
+2020-01-15 04:05:33,767:ckpt=ckpt/S-S_T-R/M-dsne_bb-resnet101/dsne-0
 log=log/S-S_T-R/M-dsne_bb-resnet101/dsne-0
 gpus=0
 mxboard=False
