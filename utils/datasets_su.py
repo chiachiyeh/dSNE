@@ -22,13 +22,13 @@ class DomainNumpyDataset(Dataset):
         Ty_exist = True if Ty is not None else False
         assert Tx_exist == Ty_exist
 
-        self.imgs = ndarray.array(np.load(Sx) / 255.0)
+        self.imgs = np.load(Sx) / 255.0
         self.labs = ndarray.array(np.load(Sy)) if Sy is not None else None
-        self.imgs = tforms(self.imgs)
+        self.imgs = ndarray.array([tforms(img) for img in self.imgs])
 
         if Tx is not None:
-            arrX = ndarray.array(np.load(Tx))
-            arrX = tforms(arrX)
+            arrX = np.load(Tx)
+            arrX = ndarray.array([tfroms(img) for img in arrX])
             self.imgs = ndarray.concat((self.imgs, arrX), axis=0)
             arrY = ndarray.array(np.load(Ty))
             self.labs = ndarray.concat((self.labs, arrY), axis=0)
