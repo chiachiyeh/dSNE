@@ -22,12 +22,13 @@ class DomainNumpyDataset(Dataset):
         Ty_exist = True if Ty is not None else False
         assert Tx_exist == Ty_exist
 
-        self.imgs = np.load(tforms(Sx))
+        self.imgs = np.load(Sx) / 255.0
         self.labs = np.load(Sy) if Sy is not None else None
-
+        self.imgs = tforms(self.imgs)
 
         if Tx is not None:
-            arrX = np.load(tforms(Tx))
+            arrX = np.load(Tx)
+            arrX = tforms(arrX)
             self.imgs = np.concatenate((self.imgs, arrX), axis=0)
             arrY = np.load(Ty)
             self.labs = np.concatenate((self.labs, arrY), axis=0)
@@ -37,7 +38,6 @@ class DomainNumpyDataset(Dataset):
         self.tforms = tforms
         self.ratio = ratio
 
-        self.imgs = self.imgs / 255.0
         print('in DomainNumpyDataset')
         print('imgs: ', self.imgs.shape)
         print('labs: ', self.labs.shape)
