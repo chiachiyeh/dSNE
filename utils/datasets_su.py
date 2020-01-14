@@ -7,7 +7,7 @@ import random
 import json
 import numpy as np
 
-from mxnet import image, recordio, nd
+from mxnet import image, recordio, nd, ndarray
 from mxnet.gluon.data import Dataset
 from .io import load_json
 from .datasets_funcs import gen_cls_idx_dict
@@ -22,16 +22,16 @@ class DomainNumpyDataset(Dataset):
         Ty_exist = True if Ty is not None else False
         assert Tx_exist == Ty_exist
 
-        self.imgs = mx.ndarray.array(np.load(Sx) / 255.0)
-        self.labs = mx.ndarray.array(np.load(Sy)) if Sy is not None else None
+        self.imgs = ndarray.array(np.load(Sx) / 255.0)
+        self.labs = ndarray.array(np.load(Sy)) if Sy is not None else None
         self.imgs = tforms(self.imgs)
 
         if Tx is not None:
-            arrX = mx.ndarray.array(np.load(Tx))
+            arrX = ndarray.array(np.load(Tx))
             arrX = tforms(arrX)
-            self.imgs = mxnet.ndarray.concat((self.imgs, arrX), axis=0)
-            arrY = mx.ndarray.array(np.load(Ty))
-            self.labs = mxnet.ndarray.concat((self.labs, arrY), axis=0)
+            self.imgs = ndarray.concat((self.imgs, arrX), axis=0)
+            arrY = ndarray.array(np.load(Ty))
+            self.labs = ndarray.concat((self.labs, arrY), axis=0)
 
 
         self.labExist = False if Y is None else True
