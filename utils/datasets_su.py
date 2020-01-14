@@ -59,7 +59,7 @@ class DomainNumpyDataset(Dataset):
         #print('labs: ', self.labs.shape)
 
     def __getitem__(self,idx):
-        im = self.imgs[idx]
+        im = ndarray.array(self.imgs[idx])
         #l = self.labs[idx] if self.labExist else 0
         l = self.labs[idx]
         if self.tforms is not None:
