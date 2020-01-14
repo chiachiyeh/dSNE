@@ -24,11 +24,11 @@ class DomainNumpyDataset(Dataset):
 
         self.imgs = np.load(Sx) / 255.0
         self.labs = ndarray.array(np.load(Sy)) if Sy is not None else None
-        self.imgs = ndarray.array([tforms(img) for img in self.imgs])
+        self.imgs = ndarray.array([tforms(ndarray.array(img)) for img in self.imgs])
 
         if Tx is not None:
             arrX = np.load(Tx)
-            arrX = ndarray.array([tfroms(img) for img in arrX])
+            arrX = ndarray.array([tfroms(ndarray.array(img)) for img in arrX])
             self.imgs = ndarray.concat((self.imgs, arrX), axis=0)
             arrY = ndarray.array(np.load(Ty))
             self.labs = ndarray.concat((self.labs, arrY), axis=0)
